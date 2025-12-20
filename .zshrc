@@ -1,16 +1,53 @@
-export PATH="/opt/homebrew/bin:$PATH"
-export PATH="/opt/homebrew/share/google-cloud-sdk/bin:$PATH"
+# ============================================================
+# HISTÓRICO (melhorado + compartilhado entre sessões)
+# ============================================================
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=100000
+SAVEHIST=100000
 
-# ----------------------
-# Pyenv
-# ----------------------
+setopt APPEND_HISTORY         # não sobrescreve histórico
+setopt INC_APPEND_HISTORY     # salva conforme executa
+setopt SHARE_HISTORY          # compartilha entre abas/janelas
+setopt HIST_IGNORE_ALL_DUPS   # remove duplicatas
+setopt HIST_EXPIRE_DUPS_FIRST # expira duplicatas primeiro
+setopt HIST_REDUCE_BLANKS     # remove espaços extras
+setopt HIST_VERIFY            # confirma expansões antes de executar
+
+# ============================================================
+# PATH
+# ============================================================
+typeset -U path PATH
+
+path=(
+  /opt/homebrew/bin
+  /opt/homebrew/share/google-cloud-sdk/bin
+  $path
+)
+
+export PATH
+
+# ============================================================
+# PYENV
+# ============================================================
 export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init - zsh)"
 
-# ----------------------
-# Aliases
-# ----------------------
+if [[ -d "$PYENV_ROOT/bin" ]]; then
+  path=("$PYENV_ROOT/bin" $path)
+fi
+
+if command -v pyenv >/dev/null 2>&1; then
+  eval "$(pyenv init - zsh)"
+fi
+
+# ============================================================
+# ALIASES & FUNÇÕES
+# ============================================================
+
+# Brew
+brewup() {
+  command -v brew >/dev/null 2>&1 || { echo "brew não encontrado"; return 127; }
+  brew update && brew upgrade && brew cleanup && echo "Brew packages updated!"
+}
 
 # Docker
 alias d='docker'
@@ -22,28 +59,52 @@ alias dcub='docker compose up --build'
 alias dcubd='docker compose up --build -d'
 
 # eza as ls
-alias ls="eza --color=always --icons=always --long --git --no-filesize --no-time --no-user --no-permissions"
+if command -v eza >/dev/null 2>&1; then
+  alias ls="eza --color=always --icons=always --long --git --no-filesize --no-time --no-user --no-permissions"
+fi
 
-# CEMIG
+# ============================================================
+# CEMIG / GCLOUD
+# ============================================================
 alias clogin='gcloud auth application-default login'
-alias ccreds='cat "$HOME/.config/gcloud/application_default_credentials.json" > "$HOME/Developer/Repos/CEMIG/backend-cemig/service-account.json"'
 
-ctunnel() { # Opens a tunnel to the bastion VM for database access
-  local RPORT="${1:-5433}" # remote port on the VM/bastion
+ccreds() {
+  local src="$HOME/.config/gcloud/application_default_credentials.json"
+  local dst="$HOME/Developer/Repos/CEMIG/backend-cemig/service-account.json"
 
-  echo "Opening tunnel: remote:$RPORT -> local:5435"
-  gcloud compute start-iap-tunnel application-bastion-vm "$RPORT" \
-    --local-host-port=localhost:5435 \
-    --zone=us-central1-a \
-    --project=ufg-prd-energygpt
+  if [[ ! -f "$src" ]]; then
+    echo "Credencial não encontrada em: $src"
+    return 1
+  fi
+
+  mkdir -p "$(dirname "$dst")"
+  cp -f "$src" "$dst"
+  echo "Copiado para: $dst"
 }
 
-# ----------------------
-# Starship
-# ----------------------
-eval "$(starship init zsh)"
+ctunnel() { # Opens a tunnel to the bastion VM for database access
+  command -v gcloud >/dev/null 2>&1 || { echo "gcloud não encontrado"; return 127; }
 
-# ----------------------
-# Zoxide
-# ----------------------
-eval "$(zoxide init --cmd cd zsh)"
+  local RPORT="${1:-5433}"  # remote port on the VM/bastion
+  local LPORT="5435"
+
+  echo "Opening tunnel: remote:$RPORT -> local:$LPORT"
+  gcloud compute start-iap-tunnel application-bastion-vm "$RPORT" \
+    --local-host-port="localhost:$LPORT" \
+    --zone="us-central1-a" \
+    --project="ufg-prd-energygpt"
+}
+
+# ============================================================
+# STARSHIP
+# ============================================================
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi
+
+# ============================================================
+# ZOXIDE
+# ============================================================
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init --cmd cd zsh)"
+fi
