@@ -1,13 +1,16 @@
-theme = Catppuccin Mocha
-background-opacity = 0.85
-background-blur-radius = 23
-
-font-family = JetBrainsMonoNL Nerd Font
-font-size = 16
-
-mouse-hide-while-typing = true
-
-window-decoration = auto
-window-padding-x = 10
-window-padding-y = 10
-window-padding-balance = false
+font-family = "JetBrains Maple Mono"
+theme = "Gruvbox Material"
+font-size = 15
+background-opacity = 0.7
+background-blur-radius = 40
+window-padding-x = 8
+window-padding-y = 8
+cursor-style = "block"
+shell-integration-features = no-cursor
+macos-titlebar-style = transparent
+confirm-close-surface = false
+shell-integration = fish
+window-height = 40
+window-width = 100
+window-save-state = always
+term = xterm-256color
