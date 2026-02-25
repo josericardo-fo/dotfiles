@@ -1,5 +1,5 @@
 # ============================================================
-# HISTÓRICO (melhorado + compartilhado entre sessões)
+# HISTÓRICO
 # ============================================================
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=100000
@@ -46,7 +46,7 @@ fi
 # Brew
 brewup() {
   command -v brew >/dev/null 2>&1 || { echo "brew não encontrado"; return 127; }
-  brew update && brew upgrade && brew cleanup && echo "Brew packages updated!"
+  brew update && brew upgrade && brew cleanup && echo "Brew updated and cleaned up!"
 }
 
 # Docker
@@ -66,9 +66,13 @@ fi
 # ============================================================
 # CEMIG / GCLOUD
 # ============================================================
-alias clogin='gcloud auth application-default login'
+csetup() {
+  # 1. Login
+  echo "== gcloud login =="
+  gcloud auth application-default login || return 1
 
-ccreds() {
+  # 2. Copiar credenciais
+  echo "== Copiando credenciais =="
   local src="$HOME/.config/gcloud/application_default_credentials.json"
   local dst="$HOME/Developer/Repos/CEMIG/backend-cemig/service-account.json"
 
@@ -80,12 +84,12 @@ ccreds() {
   mkdir -p "$(dirname "$dst")"
   cp -f "$src" "$dst"
   echo "Copiado para: $dst"
-}
 
-ctunnel() { # Opens a tunnel to the bastion VM for database access
+  # 3. Abrir túnel
+  echo "== Abrindo túnel =="
   command -v gcloud >/dev/null 2>&1 || { echo "gcloud não encontrado"; return 127; }
 
-  local RPORT="${1:-5433}"  # remote port on the VM/bastion
+  local RPORT="${1:-5433}"  # você pode passar a porta como argumento
   local LPORT="5435"
 
   echo "Opening tunnel: remote:$RPORT -> local:$LPORT"
