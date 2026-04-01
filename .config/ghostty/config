@@ -9,7 +9,6 @@ cursor-style = "block"
 shell-integration-features = no-cursor
 macos-titlebar-style = transparent
 confirm-close-surface = false
-shell-integration = fish
 window-height = 40
 window-width = 100
 window-save-state = always
