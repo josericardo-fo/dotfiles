@@ -2,15 +2,15 @@
 # HISTÓRICO
 # ============================================================
 HISTFILE="$HOME/.zsh_history"
-HISTSIZE=10000000
-SAVEHIST=10000000
+HISTSIZE=1100000000
+SAVEHIST=1000000000
 
-setopt hist_expire_dups_first  # expira duplicatas primeiro
-setopt hist_find_no_dups       # não encontrar duplicatas
-setopt hist_ignore_dups        # não salvar duplicatas
-setopt share_history           # compartilha o histórico entre sessões
-setopt inc_append_history      # salva o histórico imediatamente, não apenas no final da sessão
-setopt interactivecomments     # liga comentários no terminal
+setopt auto_cd                  # cd sem precisar digitar 'cd'
+setopt hist_expire_dups_first   # expira duplicatas primeiro
+setopt hist_find_no_dups        # não encontrar duplicatas
+setopt hist_ignore_dups         # não salvar duplicatas
+setopt interactivecomments      # liga comentários no terminal
+setopt share_history            # compartilha o histórico entre sessões
 
 # ============================================================
 # PATH
@@ -20,10 +20,17 @@ typeset -U path PATH
 path=(
   /opt/homebrew/bin
   /opt/homebrew/share/google-cloud-sdk/bin
+  "$HOME/.bun/bin"
   $path
 )
 
 export PATH
+export BUN_INSTALL="$HOME/.bun"
+
+# ============================================================
+# COMPLETIONS
+# ============================================================
+autoload -U compinit; compinit
 
 # ============================================================
 # MISE
@@ -35,7 +42,6 @@ fi
 # ============================================================
 # ALIASES & FUNÇÕES
 # ============================================================
-
 brewup() {
   command -v brew >/dev/null 2>&1 || { echo "brew não encontrado"; return 127; }
   brew update && brew upgrade && brew cleanup && echo "Brew updated and cleaned up!"
@@ -52,7 +58,9 @@ alias dcubd='docker compose up --build -d'
 
 # eza as ls
 if command -v eza >/dev/null 2>&1; then
-  alias ls="eza --color=always --icons=always --long --git --no-filesize --no-time --no-user --no-permissions"
+  alias ls='eza --icons=always --long --git --no-filesize --no-time --no-user --no-permissions'
+  alias la='eza --icons=always --long --git --no-user --no-permissions --all'
+  alias lt='eza --tree --level=2 --icons=always'
 fi
 
 # ============================================================
@@ -97,6 +105,12 @@ ctunnel() {
   _open_cemig_tunnel "$1"
 }
 
+# ============================================================
+# UV
+# ============================================================
+if command -v uv >/dev/null 2>&1; then
+  eval "$(uv generate-shell-completion zsh)"
+fi
 
 # ============================================================
 # ZOXIDE
@@ -111,3 +125,13 @@ fi
 if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
+
+# ============================================================
+# BUN COMPLETIONS
+# ============================================================
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+
+# ============================================================
+# ALIASES EXTRAS
+# ============================================================
+alias claude-mem='$HOME/.bun/bin/bun "$HOME/.claude/plugins/cache/thedotmack/claude-mem/12.1.0/scripts/worker-service.cjs"'

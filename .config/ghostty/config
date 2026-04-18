@@ -1,7 +1,7 @@
 font-family = "JetBrains Maple Mono"
-theme = "Gruvbox Material"
+theme = Gruvbox Material
 font-size = 15
-background-opacity = 0.7
+background-opacity = 0.8
 background-blur-radius = 40
 window-padding-x = 8
 window-padding-y = 8
