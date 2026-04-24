@@ -135,3 +135,5 @@ fi
 # ALIASES EXTRAS
 # ============================================================
 alias claude-mem='$HOME/.bun/bin/bun "$HOME/.claude/plugins/cache/thedotmack/claude-mem/12.1.0/scripts/worker-service.cjs"'
+
+fastfetch
