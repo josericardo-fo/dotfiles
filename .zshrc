@@ -1,4 +1,18 @@
 # ============================================================
+# FASTFETCH
+# ============================================================
+alias fastfetch="pokeget random --hide-name | fastfetch"
+
+fastfetch
+
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# ============================================================
 # HISTÓRICO
 # ============================================================
 HISTFILE="$HOME/.zsh_history"
@@ -26,6 +40,7 @@ path=(
 
 export PATH
 export BUN_INSTALL="$HOME/.bun"
+export EDITOR="nvim"
 
 # ============================================================
 # COMPLETIONS
@@ -42,7 +57,8 @@ fi
 # ============================================================
 # ALIASES & FUNÇÕES
 # ============================================================
-brewup() {
+# Brew
+bu() {
   command -v brew >/dev/null 2>&1 || { echo "brew não encontrado"; return 127; }
   brew update && brew upgrade && brew cleanup && echo "Brew updated and cleaned up!"
 }
@@ -120,13 +136,6 @@ if command -v zoxide >/dev/null 2>&1; then
 fi
 
 # ============================================================
-# STARSHIP
-# ============================================================
-if command -v starship >/dev/null 2>&1; then
-  eval "$(starship init zsh)"
-fi
-
-# ============================================================
 # BUN COMPLETIONS
 # ============================================================
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
@@ -136,4 +145,10 @@ fi
 # ============================================================
 alias claude-mem='$HOME/.bun/bin/bun "$HOME/.claude/plugins/cache/thedotmack/claude-mem/12.1.0/scripts/worker-service.cjs"'
 
-fastfetch
+# ============================================================
+# POWERLEVEL10K
+# ============================================================
+source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
