@@ -1,16 +1,29 @@
 # ============================================================
-# FASTFETCH
+# STARTUP BANNER / FASTFETCH
 # ============================================================
-alias fastfetch="pokeget random --hide-name | fastfetch"
+alias fastfetch='pokeget random --hide-name | command fastfetch'
 
-fastfetch
+if [[ "$TERM_PROGRAM" != "vscode" ]]; then
+  sleep 0.05 && fastfetch
+fi
 
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
+# ============================================================
+# POWERLEVEL10K INSTANT PROMPT
+# ============================================================
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
+
+# ============================================================
+# OH MY ZSH
+# ============================================================
+export ZSH="$HOME/.oh-my-zsh"
+
+ZSH_THEME=""
+
+plugins=(zsh-autosuggestions zsh-syntax-highlighting you-should-use)
+
+source "$ZSH/oh-my-zsh.sh"
 
 # ============================================================
 # HISTÓRICO
@@ -19,12 +32,12 @@ HISTFILE="$HOME/.zsh_history"
 HISTSIZE=1100000000
 SAVEHIST=1000000000
 
-setopt auto_cd                  # cd sem precisar digitar 'cd'
-setopt hist_expire_dups_first   # expira duplicatas primeiro
-setopt hist_find_no_dups        # não encontrar duplicatas
-setopt hist_ignore_dups         # não salvar duplicatas
-setopt interactivecomments      # liga comentários no terminal
-setopt share_history            # compartilha o histórico entre sessões
+setopt auto_cd
+setopt hist_expire_dups_first
+setopt hist_find_no_dups
+setopt hist_ignore_dups
+setopt interactivecomments
+setopt share_history
 
 # ============================================================
 # PATH
@@ -45,23 +58,43 @@ export EDITOR="nvim"
 # ============================================================
 # COMPLETIONS
 # ============================================================
-autoload -U compinit; compinit
+autoload -U compinit
+compinit
 
 # ============================================================
-# MISE
+# TOOLS
 # ============================================================
+
+# Mise
 if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate zsh)"
 fi
 
+# UV
+if command -v uv >/dev/null 2>&1; then
+  eval "$(uv generate-shell-completion zsh)"
+fi
+
+# Zoxide
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init --cmd cd zsh)"
+fi
+
+# Bun completions
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+
 # ============================================================
 # ALIASES & FUNÇÕES
 # ============================================================
+
 # Brew
 bu() {
   command -v brew >/dev/null 2>&1 || { echo "brew não encontrado"; return 127; }
   brew update && brew upgrade && brew cleanup && echo "Brew updated and cleaned up!"
 }
+
+# Claude Mem
+alias claude-mem='$HOME/.bun/bin/bun "$HOME/.claude/plugins/cache/thedotmack/claude-mem/12.1.0/scripts/worker-service.cjs"'
 
 # Docker
 alias d='docker'
@@ -79,20 +112,23 @@ if command -v eza >/dev/null 2>&1; then
   alias lt='eza --tree --level=2 --icons=always'
 fi
 
+# Git
+gcn() { git commit --no-verify -m "$*"; }
+
 # ============================================================
 # CEMIG / GCLOUD
 # ============================================================
 _open_cemig_tunnel() {
-  command -v gcloud >/dev/null 2>&1 || { echo "gcloud não encontrado"; return 127; }
+  command -v cloud-sql-proxy >/dev/null 2>&1 || { echo "cloud-sql-proxy não encontrado. Instale com: brew install cloud-sql-proxy"; return 127; }
 
-  local rport="${1:-5433}"
-  local lport="${2:-5435}"
+  local lport="${1:-5435}"
+  local instance="ufg-prd-energygpt:us-central1:application-bastion-vm"
+  local creds="$HOME/Developer/Repos/CEMIG/monorepo/apps/backend/service-account.json"
 
-  echo "Opening tunnel: remote:$rport -> local:$lport"
-  gcloud compute start-iap-tunnel application-bastion-vm "$rport" \
-    --local-host-port="localhost:$lport" \
-    --zone="us-central1-a" \
-    --project="ufg-prd-energygpt"
+  echo "Opening tunnel: Cloud SQL $instance -> local:$lport"
+  cloud-sql-proxy "$instance" \
+    --port="$lport" \
+    --credentials-file="$creds"
 }
 
 csetup() {
@@ -104,12 +140,9 @@ csetup() {
   echo "== Copiando credenciais =="
   local src="$HOME/.config/gcloud/application_default_credentials.json"
   local dst="$HOME/Developer/Repos/CEMIG/monorepo/apps/backend/service-account.json"
-
   [[ -f "$src" ]] || { echo "Credencial não encontrada em: $src"; return 1; }
-
   mkdir -p "$(dirname "$dst")" || return 1
   cp -f "$src" "$dst" || return 1
-
   echo "Copiado para: $dst"
 
   echo "== Abrindo túnel =="
@@ -122,33 +155,9 @@ ctunnel() {
 }
 
 # ============================================================
-# UV
+# POWERLEVEL10K THEME
 # ============================================================
-if command -v uv >/dev/null 2>&1; then
-  eval "$(uv generate-shell-completion zsh)"
-fi
-
-# ============================================================
-# ZOXIDE
-# ============================================================
-if command -v zoxide >/dev/null 2>&1; then
-  eval "$(zoxide init --cmd cd zsh)"
-fi
-
-# ============================================================
-# BUN COMPLETIONS
-# ============================================================
-[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
-
-# ============================================================
-# ALIASES EXTRAS
-# ============================================================
-alias claude-mem='$HOME/.bun/bin/bun "$HOME/.claude/plugins/cache/thedotmack/claude-mem/12.1.0/scripts/worker-service.cjs"'
-
-# ============================================================
-# POWERLEVEL10K
-# ============================================================
-source $(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme
+source "$(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
