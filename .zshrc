@@ -113,45 +113,53 @@ if command -v eza >/dev/null 2>&1; then
 fi
 
 # Git
-gcn() { git commit --no-verify -m "$*"; }
+gcn() { git commit --no-verify -m "$1"; }
 
 # ============================================================
 # CEMIG / GCLOUD
 # ============================================================
+_cemig_copy_adc() {
+  local src="$HOME/.config/gcloud/application_default_credentials.json"
+  local dst="$HOME/Developer/Repos/CEMIG/monorepo/apps/backend/service-account.json"
+
+  [[ -f "$src" ]] || { echo "Credencial não encontrada em: $src"; return 1; }
+
+  mkdir -p "$(dirname "$dst")" || return 1
+  cp -f "$src" "$dst" || { echo "Falha ao copiar credenciais"; return 1; }
+  chmod 600 "$dst"
+
+  echo "Credencial copiada para: $dst"
+}
+
 _open_cemig_tunnel() {
-  command -v cloud-sql-proxy >/dev/null 2>&1 || { echo "cloud-sql-proxy não encontrado. Instale com: brew install cloud-sql-proxy"; return 127; }
+  command -v gcloud >/dev/null 2>&1 || { echo "gcloud não encontrado"; return 127; }
 
-  local lport="${1:-5435}"
-  local instance="ufg-prd-energygpt:us-central1:application-bastion-vm"
-  local creds="$HOME/Developer/Repos/CEMIG/monorepo/apps/backend/service-account.json"
+  local rport="${1:-5433}"
+  local lport="${2:-5435}"
 
-  echo "Opening tunnel: Cloud SQL $instance -> local:$lport"
-  cloud-sql-proxy "$instance" \
-    --port="$lport" \
-    --credentials-file="$creds"
+  echo "Abrindo túnel: remote:$rport -> local:$lport"
+  gcloud compute start-iap-tunnel application-bastion-vm "$rport" \
+    --local-host-port="localhost:$lport" \
+    --zone="us-central1-a" \
+    --project="ufg-prd-energygpt"
 }
 
 csetup() {
   command -v gcloud >/dev/null 2>&1 || { echo "gcloud não encontrado"; return 127; }
 
-  echo "== gcloud login =="
+  echo "== gcloud ADC login =="
   gcloud auth application-default login || return 1
 
   echo "== Copiando credenciais =="
-  local src="$HOME/.config/gcloud/application_default_credentials.json"
-  local dst="$HOME/Developer/Repos/CEMIG/monorepo/apps/backend/service-account.json"
-  [[ -f "$src" ]] || { echo "Credencial não encontrada em: $src"; return 1; }
-  mkdir -p "$(dirname "$dst")" || return 1
-  cp -f "$src" "$dst" || return 1
-  echo "Copiado para: $dst"
+  _cemig_copy_adc || return 1
 
   echo "== Abrindo túnel =="
-  _open_cemig_tunnel "$1"
+  _open_cemig_tunnel "$@"
 }
 
 ctunnel() {
   echo "== Abrindo túnel =="
-  _open_cemig_tunnel "$1"
+  _open_cemig_tunnel "$@"
 }
 
 # ============================================================
