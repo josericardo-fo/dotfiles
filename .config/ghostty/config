@@ -1,5 +1,11 @@
 font-family = JetBrainsMono Nerd Font
-theme = GitHub Dark
 font-size = 15
+font-thicken = true
+
+theme = GitHub Dark
 background-opacity = 0.8
-background-blur-radius = 20
+background-blur = 16
+
+window-padding-x = 8
+window-padding-y = 8
+confirm-close-surface = false
