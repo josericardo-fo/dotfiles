@@ -3,7 +3,7 @@
 # ============================================================
 alias fastfetch='pokeget random --hide-name | command fastfetch'
 
-if [[ "$TERM_PROGRAM" != "vscode" ]]; then
+if [[ "$TERM_PROGRAM" != "vscode" && "$TERM_PROGRAM" != "Orca" ]]; then
   sleep 0.05 && fastfetch
 fi
 
@@ -46,14 +46,18 @@ typeset -U path PATH
 
 path=(
   /opt/homebrew/bin
+  /opt/homebrew/opt/libpq/bin
   /opt/homebrew/share/google-cloud-sdk/bin
   "$HOME/.bun/bin"
+  "$HOME/.local/bin"
   $path
 )
 
 export PATH
 export BUN_INSTALL="$HOME/.bun"
 export EDITOR="nvim"
+# Segredos (tokens) carregados de arquivo separado com permissao 600
+[ -f "$HOME/.config/secrets/tokens.env" ] && source "$HOME/.config/secrets/tokens.env"
 
 # ============================================================
 # COMPLETIONS
@@ -76,8 +80,8 @@ if command -v uv >/dev/null 2>&1; then
 fi
 
 # Zoxide
-if command -v zoxide >/dev/null 2>&1; then
-  eval "$(zoxide init --cmd cd zsh)"
+if command -v zoxide >/dev/null 2>&1 && [ -z "$DISABLE_ZOXIDE" ]; then
+  eval "$(zoxide init zsh --cmd cd)"
 fi
 
 # Bun completions
@@ -92,9 +96,6 @@ bu() {
   command -v brew >/dev/null 2>&1 || { echo "brew não encontrado"; return 127; }
   brew update && brew upgrade && brew cleanup && echo "Brew updated and cleaned up!"
 }
-
-# Claude Mem
-alias claude-mem='$HOME/.bun/bin/bun "$HOME/.claude/plugins/cache/thedotmack/claude-mem/12.1.0/scripts/worker-service.cjs"'
 
 # Docker
 alias d='docker'
@@ -114,53 +115,8 @@ fi
 
 # Git
 gcn() { git commit --no-verify -m "$1"; }
-
-# ============================================================
-# CEMIG / GCLOUD
-# ============================================================
-_cemig_copy_adc() {
-  local src="$HOME/.config/gcloud/application_default_credentials.json"
-  local dst="$HOME/Developer/Repos/CEMIG/monorepo/apps/backend/service-account.json"
-
-  [[ -f "$src" ]] || { echo "Credencial não encontrada em: $src"; return 1; }
-
-  mkdir -p "$(dirname "$dst")" || return 1
-  cp -f "$src" "$dst" || { echo "Falha ao copiar credenciais"; return 1; }
-  chmod 600 "$dst"
-
-  echo "Credencial copiada para: $dst"
-}
-
-_open_cemig_tunnel() {
-  command -v gcloud >/dev/null 2>&1 || { echo "gcloud não encontrado"; return 127; }
-
-  local rport="${1:-5433}"
-  local lport="${2:-5435}"
-
-  echo "Abrindo túnel: remote:$rport -> local:$lport"
-  gcloud compute start-iap-tunnel REDACTED-VM "$rport" \
-    --local-host-port="localhost:$lport" \
-    --zone="REDACTED-ZONE" \
-    --project="REDACTED-PROJECT"
-}
-
-csetup() {
-  command -v gcloud >/dev/null 2>&1 || { echo "gcloud não encontrado"; return 127; }
-
-  echo "== gcloud ADC login =="
-  gcloud auth application-default login || return 1
-
-  echo "== Copiando credenciais =="
-  _cemig_copy_adc || return 1
-
-  echo "== Abrindo túnel =="
-  _open_cemig_tunnel "$@"
-}
-
-ctunnel() {
-  echo "== Abrindo túnel =="
-  _open_cemig_tunnel "$@"
-}
+# Funcoes de trabalho (CEMIG/GCP) fora do repo de dotfiles
+[ -f "$HOME/.config/zsh/cemig.zsh" ] && source "$HOME/.config/zsh/cemig.zsh"
 
 # ============================================================
 # POWERLEVEL10K THEME
@@ -169,3 +125,8 @@ source "$(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+export PATH="$HOME/.local/bin:$PATH"
+
+# bun completions
+[ -s "/Users/josericardo/.bun/_bun" ] && source "/Users/josericardo/.bun/_bun"

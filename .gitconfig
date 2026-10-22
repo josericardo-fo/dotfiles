@@ -1,3 +1,7 @@
 [user]
 	name = José Ricardo
 	email = josericardo.fleury05@gmail.com
+[init]
+	defaultBranch = main
+[core]
+	hooksPath = /Users/josericardo/.config/git/hooks
