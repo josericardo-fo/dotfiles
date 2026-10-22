@@ -34,7 +34,7 @@
         },
         {
             "type": "packages",
-            "format": "{} (brew)",
+            "format": "{brew} (brew)",
             "key": " ",
             "keyColor": "34"
         },
