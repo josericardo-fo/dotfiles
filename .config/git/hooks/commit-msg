@@ -1,5 +1,7 @@
 #!/bin/sh
-# Remove todos os trailers Co-authored-by da mensagem de commit.
+# Remove todos os trailers Co-authored-by da mensagem de commit,
+# exceto em repos com `git config hooks.keepCoauthors true`.
 f="$1"
 [ -f "$f" ] || exit 0
+[ "$(git config --bool hooks.keepCoauthors)" = "true" ] && exit 0
 grep -iv '^[[:space:]]*Co-authored-by:' "$f" > "$f.tmp" && mv "$f.tmp" "$f"

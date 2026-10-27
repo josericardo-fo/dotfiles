@@ -4,4 +4,36 @@
 [init]
 	defaultBranch = main
 [core]
-	hooksPath = /Users/josericardo/.config/git/hooks
+	hooksPath = ~/.config/git/hooks
+	pager = delta
+[diff]
+	algorithm = histogram
+	colorMoved = default
+[merge]
+	conflictStyle = zdiff3
+[rerere]
+	enabled = true
+	autoupdate = true
+[push]
+	autoSetupRemote = true
+	followTags = true
+[fetch]
+	prune = true
+[pull]
+	rebase = true
+[rebase]
+	autoStash = true
+	updateRefs = true
+[branch]
+	sort = -committerdate
+[tag]
+	sort = version:refname
+[commit]
+	verbose = true
+[help]
+	autocorrect = prompt
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+	line-numbers = true
