@@ -1,6 +1,7 @@
 # ============================================================
 # STARTUP BANNER / FASTFETCH
 # ============================================================
+# Fica antes do instant prompt do p10k para não gerar aviso de output
 alias fastfetch='pokeget random --hide-name | command fastfetch'
 
 if [[ "$TERM_PROGRAM" != "vscode" && "$TERM_PROGRAM" != "Orca" ]]; then
@@ -15,34 +16,9 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 # ============================================================
-# OH MY ZSH
-# ============================================================
-export ZSH="$HOME/.oh-my-zsh"
-
-ZSH_THEME=""
-
-plugins=(zsh-autosuggestions zsh-syntax-highlighting you-should-use)
-
-source "$ZSH/oh-my-zsh.sh"
-
-# ============================================================
-# HISTÓRICO
-# ============================================================
-HISTFILE="$HOME/.zsh_history"
-HISTSIZE=1100000000
-SAVEHIST=1000000000
-
-setopt auto_cd
-setopt hist_expire_dups_first
-setopt hist_find_no_dups
-setopt hist_ignore_dups
-setopt interactivecomments
-setopt share_history
-
-# ============================================================
 # PATH
 # ============================================================
-typeset -U path PATH
+typeset -U path PATH fpath
 
 path=(
   /opt/homebrew/bin
@@ -53,17 +29,38 @@ path=(
   $path
 )
 
+# Completions do Homebrew (gh, eza, bw, uv, mise...) antes do compinit do OMZ
+fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
+
 export PATH
 export BUN_INSTALL="$HOME/.bun"
-export EDITOR="nvim"
+export EDITOR="vim"
 # Segredos (tokens) carregados de arquivo separado com permissao 600
 [ -f "$HOME/.config/secrets/tokens.env" ] && source "$HOME/.config/secrets/tokens.env"
 
 # ============================================================
-# COMPLETIONS
+# OH MY ZSH (já roda o compinit)
 # ============================================================
-autoload -U compinit
-compinit
+export ZSH="$HOME/.oh-my-zsh"
+
+ZSH_THEME=""
+
+# zsh-syntax-highlighting deve ser o último plugin
+plugins=(zsh-autosuggestions you-should-use zsh-syntax-highlighting)
+
+source "$ZSH/oh-my-zsh.sh"
+
+# ============================================================
+# HISTÓRICO
+# ============================================================
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=100000
+SAVEHIST=100000
+
+# Demais opções (share_history, hist_ignore_space, auto_cd...) já vêm do OMZ
+setopt hist_ignore_all_dups
+setopt hist_find_no_dups
+setopt hist_reduce_blanks
 
 # ============================================================
 # TOOLS
@@ -74,14 +71,19 @@ if command -v mise >/dev/null 2>&1; then
   eval "$(mise activate zsh)"
 fi
 
-# UV
-if command -v uv >/dev/null 2>&1; then
-  eval "$(uv generate-shell-completion zsh)"
-fi
-
 # Zoxide
 if command -v zoxide >/dev/null 2>&1 && [ -z "$DISABLE_ZOXIDE" ]; then
   eval "$(zoxide init zsh --cmd cd)"
+fi
+
+# fzf: Ctrl-R (histórico), Ctrl-T (arquivos), Alt-C (pastas)
+if command -v fzf >/dev/null 2>&1; then
+  source <(fzf --zsh)
+  # fd respeita .gitignore e é mais rápido que find; bat dá preview com cor
+  export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
+  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+  export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git'
+  export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :200 {}'"
 fi
 
 # Bun completions
@@ -121,12 +123,7 @@ gcn() { git commit --no-verify -m "$1"; }
 # ============================================================
 # POWERLEVEL10K THEME
 # ============================================================
-source "$(brew --prefix)/share/powerlevel10k/powerlevel10k.zsh-theme"
+source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-export PATH="$HOME/.local/bin:$PATH"
-
-# bun completions
-[ -s "/Users/josericardo/.bun/_bun" ] && source "/Users/josericardo/.bun/_bun"
