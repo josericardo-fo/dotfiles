@@ -23,3 +23,24 @@ Secrets and work-specific config live outside the repo and are sourced if presen
 
 - `~/.config/secrets/tokens.env`
 - `~/.config/zsh/work.zsh`
+
+## Claude Code (`.claude/`)
+
+Versioned: `CLAUDE.md`, `model-routing.md`, `agents/`, `settings.json`, `keybindings.json` and my own generic skills (`skills/bitwarden`). Stow links them file by file into `~/.claude`, so runtime state (`projects/`, memory, history, credentials, plugin cache) stays out of the repo.
+
+Not versioned (private, kept only in `~/.claude`):
+
+- `rules/personal.md`: accounts and SSH policy.
+- `skills/remote-gpu-access`, `skills/sonarqube-fix`: internal hosts and Bitwarden item ids.
+- The Orca hooks and status line in `settings.json` are written by Orca and do nothing when Orca is absent.
+
+Third-party skills are not copied; reinstall them with the [`skills`](https://github.com/vercel-labs/skills) CLI:
+
+```sh
+npx skills add mattpocock/skills -g -a claude-code -y \
+  -s code-review codebase-design improve-codebase-architecture grilling diagnosing-bugs tdd writing-for-agents handoff
+npx skills add vercel-labs/agent-browser -g -a claude-code -y -s agent-browser
+npx skills add microsoft/playwright-cli -g -a claude-code -y -s playwright-cli
+npx skills add stablyai/orca -g -a claude-code -y -s computer-use orca-cli orchestration
+claude plugin install frontend-design@claude-plugins-official
+```
