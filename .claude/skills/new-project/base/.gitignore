@@ -1,0 +1,16 @@
+# Segredos (.env.example é versionado)
+.env*
+!.env.example
+
+# Arquivos efêmeros de tarefa
+PLAN.md
+progress.md
+
+# Artefatos do playwright-cli
+.playwright-cli/
+.playwright/
+
+# Sistema
+.DS_Store
+
+# .scratch/ NÃO é ignorado: é o issue tracker local.
