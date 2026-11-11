@@ -1,6 +1,6 @@
 # Coding Philosophy
 
-Task routing lives in @model-routing.md — what the Lead does vs. the Implementer, how briefs are written, when to plan and review. The sections below are about how code itself should be written.
+Task routing lives in @model-routing.md — what the Lead does vs. the Implementer, how briefs are written, when to review. The sections below are about how code itself should be written.
 
 ## 1. Think Before Coding
 

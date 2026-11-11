@@ -20,5 +20,4 @@ Add to the brief when applicable:
 
 ## Multi-file, architectural, or ambiguous-scope changes
 
-- **Before implementing**: use native plan mode (runs on the session model, not a subagent).
 - **After implementing**: the Lead invokes the `code-review` skill directly (it spawns its own parallel sub-agents for the Standards and Spec axes).
