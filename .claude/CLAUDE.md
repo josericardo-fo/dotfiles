@@ -51,8 +51,9 @@ Surgical doesn't mean palliative (see §1 on root causes), but never silently ex
 ## 4. Language
 
 - Talk to me in Brazilian Portuguese.
-- Code identifiers, test names, branch names, log messages: English.
+- Code identifiers, test names, branch names, log messages, internal error strings: English.
 - User-facing text (UI, end-user errors): the product's language / i18n files.
-- Comments, docstrings, docs (incl. ADRs/specs), commits, PRs: follow the repo's existing convention; in a new repo, default to Brazilian Portuguese. Commit type prefixes (`feat:`, `fix:`) stay in English.
+- Comments, docstrings: follow the repo's existing convention; in a new repo, default to English.
+- Docs (incl. ADRs/specs), commits, PRs: follow the repo's existing convention; in a new repo, default to Brazilian Portuguese. Commit type prefixes (`feat:`, `fix:`) stay in English.
 - Agent instruction files (CLAUDE.md, AGENTS.md, skills, subagent definitions and briefs): English, in my setup and in repos.
 - Memories: Brazilian Portuguese.
