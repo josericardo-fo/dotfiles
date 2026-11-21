@@ -1,0 +1,19 @@
+# Stow's default ignore list (replaced by this file), plus repo-only files.
+RCS
+.+,v
+CVS
+\.\#.+
+\.cvsignore
+\.svn
+_darcs
+\.hg
+\.git
+\.gitignore
+\.gitmodules
+.+~
+\#.*\#
+^/README.*
+^/LICENSE.*
+^/COPYING
+^/\.gitattributes
+^/\.stow-local-ignore

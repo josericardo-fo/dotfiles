@@ -37,3 +37,6 @@
 [delta]
 	navigate = true
 	line-numbers = true
+[filter "strip-orca"]
+	clean = jq -f ~/.config/git/filters/strip-orca.jq
+	required = true
