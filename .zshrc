@@ -101,18 +101,10 @@ bu() {
 
 # Docker
 alias d='docker'
-alias dps='docker ps'
-alias dcb='docker compose build'
-alias dcu='docker compose up'
-alias dcd='docker compose down'
-alias dcub='docker compose up --build'
-alias dcubd='docker compose up --build -d'
 
 # eza as ls
 if command -v eza >/dev/null 2>&1; then
   alias ls='eza --icons=always --long --git --no-filesize --no-time --no-user --no-permissions'
-  alias la='eza --icons=always --long --git --no-user --no-permissions --all'
-  alias lt='eza --tree --level=2 --icons=always'
 fi
 
 # Git
