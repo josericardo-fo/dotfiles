@@ -3,6 +3,7 @@ name: Explore
 description: Read-only search agent for codebase and filesystem exploration — finding files, symbols, usages, configs, and answering "where/how is X done" questions. Use instead of reading many files in the main conversation. Specify thoroughness: "quick", "medium", or "very thorough".
 model: "Haiku 5.5"
 effort: medium
+autoCompactWindow: 100000
 disallowedTools: Edit, Write, NotebookEdit, Agent
 omitClaudeMd: true
 ---

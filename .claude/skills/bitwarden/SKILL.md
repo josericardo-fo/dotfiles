@@ -48,7 +48,7 @@ Prefer the item **id** (stable) over the name in scripts and memory notes.
 Fetch by id and pipe it straight into the consumer — never render it:
 
 ```sh
-bw --session "$BW_SESSION" get password "$ID" | <program that reads stdin>
+bw --nointeraction --session "$BW_SESSION" get password "$ID" | <program that reads stdin>
 ```
 
 When the consumer needs a trailing newline (e.g. `sudo -S`), append it inside the
@@ -56,7 +56,7 @@ pipe, never via `printf "$(...)"` (that puts the secret in printf's argv, visibl
 in `ps`):
 
 ```sh
-{ bw --session "$BW_SESSION" get password "$ID"; echo; } | <consumer>
+{ bw --nointeraction --session "$BW_SESSION" get password "$ID"; echo; } | <consumer>
 ```
 
 For fields other than the password: `bw get item "$ID"` returns JSON — extract the
